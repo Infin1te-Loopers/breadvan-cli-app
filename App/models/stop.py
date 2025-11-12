@@ -22,3 +22,6 @@ class Stop(db.Model):
             'driveId': self.driveId,
             'residentId': self.residentId
         }
+    
+    def list():
+        return Stop.query.all()

@@ -59,22 +59,22 @@ def resident_get_available_drives(resident):
 
 # Observer pattern
 
-def resident_subscribe(resident, street_id):
-    subscribe = StreetSubscription.query.filter_by(resident_id = resident.id, street_id = street_id).first()
+def resident_subscribe(resident):
+    subscribe = StreetSubscription.query.filter_by(resident_id = resident.id, street_id = resident.streetId).first()
     
     if subscribe:
         return 
     
-    subscription = StreetSubscription (resident.id, street_id)
+    subscription = StreetSubscription (resident.id, resident.streetId)
     db.session.add(subscription)
     db.session.commit()
     return subscription
 
-def resident_unsubscribe(resident, street_id):
-    subscription = StreetSubscription.query.filter_by(resident_id = resident.id, street_id = street_id).first()
+def resident_unsubscribe(resident):
+    subscription = StreetSubscription.query.filter_by(resident_id = resident.id, street_id = resident.streetId).first()
     
     if not subscription:
-        return 
+        return None, None
     
     street_name = subscription.street.name
     area_name = subscription.street.area.name
