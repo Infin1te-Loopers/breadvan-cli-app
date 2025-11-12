@@ -94,30 +94,3 @@ class Resident(User):
         driver = Driver.query.get(driverId)
         return driver
 
-    # methods to add
-    # subscribe method(street_id)
-    def subscribe(self, street_id):
-
-        subscribe = StreetSubscription.query.filter_by(resident_id = self.id, street_id = street_id).first()
-        
-        if subscribe:
-            return 
-        
-        subscription = StreetSubscription (self.id, street_id)
-        db.session.add(subscription)
-        db.session.commit()
-        return subscription
-    
-    
-    # unsubscribe method(street_id)
-    def unsubscribe(self, street_id):
-
-        subscribe = StreetSubscription.query.filter_by(resident_id = self.id, street_id = street_id).first()
-        
-        if not subscribe:
-            return 
-        
-        db.session.delete(subscribe)
-        db.session.commit()
-    
-    # get_notifications - view inbox?

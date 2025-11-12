@@ -1,4 +1,4 @@
-from App.models import Resident, Stop, Drive, Area, Street, DriverStock
+from App.models import Resident, Stop, Drive, Area, Street, DriverStock, StreetSubscription
 from App.database import db
 
 # All resident-related business logic will be moved here as functions
@@ -26,7 +26,6 @@ def resident_cancel_stop(resident, drive_id):
     return stop
 
 
-
 def resident_view_driver_stats(resident, driver_id):
     driver = resident.view_driver_stats(driver_id)
     if not driver:
@@ -40,17 +39,8 @@ def resident_view_stock(resident, driver_id):
     stocks =  DriverStock.query.filter_by(driverId=driver_id).all()
     return stocks
 
-# Observer pattern
-
-def resident_subscribe(resident, street_id):
-    return resident.subscribe(street_id)
-
-def resident_unsubscribe(resident, street_id):
-    return resident.unsubscribe(street_id)
-
 def resident_view_inbox(resident):
     return resident.view_inbox()
-
 
 def resident_get_subscriptions(resident):
     from App.models.StreetSubscription import StreetSubscription
@@ -61,9 +51,37 @@ def resident_get_notifications(resident):
     return Notification.query.filter_by(resident_id=resident.id).all()
 
 def resident_get_available_drives(resident):
-    from App.models.Drive import Drive
     return Drive.query.filter_by(
         areaId=resident.areaId,
         streetId=resident.streetId,
         status="Upcoming"
     ).all()
+
+# Observer pattern
+
+def resident_subscribe(resident, street_id):
+    subscribe = StreetSubscription.query.filter_by(resident_id = resident.id, street_id = street_id).first()
+    
+    if subscribe:
+        return 
+    
+    subscription = StreetSubscription (resident.id, street_id)
+    db.session.add(subscription)
+    db.session.commit()
+    return subscription
+
+def resident_unsubscribe(resident, street_id):
+    subscription = StreetSubscription.query.filter_by(resident_id = resident.id, street_id = street_id).first()
+    
+    if not subscription:
+        return 
+    
+    street_name = subscription.street.name
+    area_name = subscription.street.area.name
+
+    db.session.delete(subscription)
+    db.session.commit()
+
+    return street_name, area_name
+
+

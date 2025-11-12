@@ -51,13 +51,14 @@ from App.controllers.user import (
 app = create_app()
 migrate = get_migrate(app)
 
-with app.app_context():
+"""with app.app_context():
     upgrade()
     existing = db.session.query(User).filter_by(username='admin').first()
     if not existing:
         new_admin = Admin(username='admin', password='adminpass')
         db.session.add(new_admin)
-        db.session.commit()
+        db.session.commit()"""
+
 
 
 # Initialisation
@@ -294,6 +295,71 @@ def view_all_streets_command():
     print("\n")
 
 
+@admin_cli.command("schedule-drive", help="Schedule a drive")
+@click.argument("date_str")
+@click.argument("time_str")
+def schedule_drive_command(date_str, time_str):
+    admin = require_admin()
+    if not admin:
+        return
+    # Menu selection
+    menus = Menu.list()
+    if not menus:
+        print("No menus available. Please create a menu first.")
+        return
+    print("\nAvailable Menus:")
+    for i, menu in enumerate(menus, start=1):
+        print(f"{i}. {menu.name} - Items: {menu.get_bread_items_str()}")
+    chosen_menu_index = click.prompt("Select a menu by number", type=int)
+    if chosen_menu_index < 1 or chosen_menu_index > len(menus):
+        print("Invalid driver choice.")
+        return
+    chosen_menu = menus[chosen_menu_index - 1]
+    # Driver selection
+    drivers = Driver.list()
+    if not drivers:
+        print("No drivers available. Please create an Driver first.")
+        return
+    print("\nAvailable Drivers:")
+    for i, driver in enumerate(drivers, start=1):
+        print(f"{i}. {driver.username}")
+    chosen_driver_index = click.prompt("Select a driver by number", type=int)
+    if chosen_driver_index < 1 or chosen_driver_index > len(drivers):
+        print("Invalid driver choice.")
+        return
+    chosen_driver = drivers[chosen_driver_index - 1]
+    # Area/street selection logic remains in CLI for user prompts
+    areas = Area.query.all()
+    if not areas:
+        print("No areas available. Please create an area first.")
+        return
+    print("\nAvailable Areas:")
+    for i, area in enumerate(areas, start=1):
+        print(f"{i}. {area.name}")
+    chosen_area_index = click.prompt("Select an area by number", type=int)
+    if chosen_area_index < 1 or chosen_area_index > len(areas):
+        print("Invalid area choice.")
+        return
+    chosen_area = areas[chosen_area_index - 1]
+    streets = Street.query.filter_by(areaId=chosen_area.id).all()
+    if not streets:
+        print("No streets available in the selected area. Please create a street first.")
+        return
+    print(f"\nAvailable Streets in {chosen_area.name}:")
+    for i, street in enumerate(streets, start=1):
+        print(f"{i}. {street.name}")
+    chosen_index = click.prompt("Select a street by number", type=int)
+    if chosen_index < 1 or chosen_index > len(streets):
+        print("Invalid street choice.")
+        return
+    chosen_street = streets[chosen_index - 1]
+    try:
+        new_drive = admin_schedule_drive(chosen_driver, chosen_area.id, chosen_street.id, date_str, time_str, chosen_menu.id)
+        print(f"\nDrive scheduled for {date_str} at {time_str} on {chosen_street.name}, {chosen_area.name} | {menu.name} - Items: {menu.get_bread_items_str()}")
+    except ValueError as e:
+        print(str(e))
+
+
 app.cli.add_command(admin_cli)
 
 # Driver Commands
@@ -514,6 +580,98 @@ def view_driver_stats_command(driver_id):
     except ValueError as e:
         print(str(e))
 
+@resident_cli.command("subscribe", help="Subscribe to street to receive notifications")
+def subscribe():
+    resident = require_resident()
+    if not resident:
+        return
+    # Area/street selection logic remains in CLI for user prompts
+    areas = Area.query.all()
+    if not areas:
+        print("No areas available. Please create an area first.")
+        return
+    print("\nAvailable Areas:")
+    for i, area in enumerate(areas, start=1):
+        print(f"{i}. {area.name}")
+    chosen_area_index = click.prompt("Select an area by number", type=int)
+    if chosen_area_index < 1 or chosen_area_index > len(areas):
+        print("Invalid area choice.")
+        return
+    chosen_area = areas[chosen_area_index - 1]
+    streets = Street.query.filter_by(areaId=chosen_area.id).all()
+    if not streets:
+        print("No streets available in the selected area. Please create a street first.")
+        return
+    print(f"\nAvailable Streets in {chosen_area.name}:")
+    for i, street in enumerate(streets, start=1):
+        print(f"{i}. {street.name}")
+    chosen_index = click.prompt("Select a street by number", type=int)
+    if chosen_index < 1 or chosen_index > len(streets):
+        print("Invalid street choice.")
+        return
+    chosen_street = streets[chosen_index - 1]
+    try:
+        new_subscription = resident_subscribe(resident, chosen_street.id)
+        print(f'Subscribed to {chosen_street.name}, {chosen_street.area.name}!')
+    except ValueError as e:
+        print(str(e))
+
+
+@resident_cli.command("unsubscribe", help="Unsubscribe from street")
+def unsubscribe():
+    resident = require_resident()
+    if not resident:
+        return
+    # Subscription selection
+    if not resident.subscriptions:
+        print("You are not subscribed to any streets.")
+        return
+    print("Current Subscriptions:")
+    for i, subscription in enumerate(resident.subscriptions, start=1):
+        print(f"{i}. {subscription.street.name}, {subscription.street.area.name}")
+    chosen_subscription_index = click.prompt("Select a subscription by number", type=int)
+    if chosen_subscription_index < 1 or chosen_subscription_index > len(resident.subscriptions):
+        print("Invalid subscription choice.")
+        return
+    chosen_subscription = resident.subscriptions[chosen_subscription_index - 1]
+    try:
+        street_name, area_name = resident_unsubscribe(resident, chosen_subscription.street_id)
+        print(f'Unsubscribed from {street_name}, {street_name}!')
+    except ValueError as e:
+        print(str(e))
+
+
+@resident_cli.command("view-subscriptions", help="View subscriptions")
+def view_subscriptions():
+    resident = require_resident()
+    if not resident:
+        return
+
+    if not resident.subscriptions:
+        print("You are not subscribed to any streets.")
+        return
+    print(f"Displaying Street Subscriptions for: {resident.username}")
+    count  = 1
+    for subscription in resident.subscriptions:
+        print(f"{count}. {subscription.street.name}, {subscription.street.area.name}")
+        count+=1
+    return
+    
+
+@resident_cli.command("view-notifications", help="View notifcations")
+def view_notifications():
+    resident = require_resident()
+    if not resident:
+        return
+    
+    print(f'Displaying Notifications for: {resident.username}')
+    count = 1
+    for notification in resident.notifications:
+        print(f'{count}. [{notification.timestamp}] {notification.message}\n')
+        count += 1
+    
+    return
+
 
 app.cli.add_command(resident_cli)
 
@@ -580,7 +738,7 @@ def user_tests_command(type):
 app.cli.add_command(test)
 
 
-##### Pattern Demo
+# Table inspection commands
 
 @app.cli.command("list-streets")
 def list_streets():
@@ -599,6 +757,7 @@ def list_street_subscriptions():
         if not display_table(Resident.list(), ["id", "houseNumber", "username"], "Resident Table"):
             print("\nThere are currently no records in [Resident]\n")
 
+
 @app.cli.command("list-drivers")
 def list_street_subscriptions():
         if not display_table(Driver.list(), ["id", "status", "username"], "Resident Table"):
@@ -609,10 +768,17 @@ def list_street_subscriptions():
         if not display_table(Admin.list(), ["id", "username"], "Admin Table"):
             print("\nThere are currently no records in [Admin]\n") 
 
+
 @app.cli.command("list-notifications")
 def list_notifications():
-    if not display_table(Notification.list(), ["id", "message", "resident_id", "drive_id"], "Notification Table"):
-            print("\nThere are currently no records in [Notification]\n") 
+    if not display_table(Notification.list(), ["id", "message", "resident_id", "drive_id", "timestamp"], "Notification Table"):
+            print("\nThere are currently no records in [Notification]\n")
+
+
+@app.cli.command("list-drives")
+def list_drives():
+    if not display_table(Drive.list(), ["id", "driverId", "areaId", "streetId", "menu_id", "date", "time", "status"], "Drive Table"):
+        print("\nThere are currently no records in [Drive]\n")
 
 
 @app.cli.command("list-menus")
@@ -629,6 +795,9 @@ def list_menus():
         print(f"  Bread Items: {bread_list_str}")
         print("-" * 80)
     print("\n")
+
+
+# Observer Demo
 
 @app.cli.command("demo-observer")
 def demo_observer():
