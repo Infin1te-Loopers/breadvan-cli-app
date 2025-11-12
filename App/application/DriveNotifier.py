@@ -8,16 +8,21 @@ class DriveNotifier(Subject):
         super().__init__()
     
     def attach(self, observer):
-        super().append(observer)
+        super().attach(observer)
 
     def detach(self, observer):
         super().detach(observer)
 
     def notify(self, drive):
 
-        subscriptions = StreetSubscription.query.filter_by(street_id = drive.streetId)
+        subscriptions = StreetSubscription.get_subscribers_for_street(drive.streetId)
 
         for subscription in subscriptions:
-
+            
             observer = residentObserver(residentId=subscription.resident_id)
+            self.attach(observer)
+            
+        for observer in self._observers:
             observer.update(drive)
+
+        self._observers.clear()

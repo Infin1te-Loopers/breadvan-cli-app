@@ -10,6 +10,11 @@ class StreetSubscription(db.Model):
     def list():
         return StreetSubscription.query.all()
 
+    
+    def get_subscribers_for_street(street_id):
+        return StreetSubscription.query.filter_by(street_id=street_id)
+    
+
     def __init__(self, resident_id, street_id):
 
         self.resident_id = resident_id
