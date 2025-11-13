@@ -51,6 +51,9 @@ from App.controllers.user import (
 app = create_app()
 migrate = get_migrate(app)
 
+if __name__ == '__main__':
+    app.run()
+
 
 
 # Initialisation
