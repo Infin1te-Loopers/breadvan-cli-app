@@ -294,19 +294,6 @@ def schedule_drive_command(date_str, time_str):
     admin = require_admin()
     if not admin:
         return
-    # Menu selection
-    menus = Menu.list()
-    if not menus:
-        print("No menus available. Please create a menu first.")
-        return
-    print("\nAvailable Menus:")
-    for i, menu in enumerate(menus, start=1):
-        print(f"{i}. {menu.name} - Items: {menu.get_bread_items_str()}")
-    chosen_menu_index = click.prompt("Select a menu by number", type=int)
-    if chosen_menu_index < 1 or chosen_menu_index > len(menus):
-        print("Invalid driver choice.")
-        return
-    chosen_menu = menus[chosen_menu_index - 1]
     # Driver selection
     drivers = Driver.list()
     if not drivers:
@@ -345,6 +332,19 @@ def schedule_drive_command(date_str, time_str):
         print("Invalid street choice.")
         return
     chosen_street = streets[chosen_index - 1]
+    # Menu selection
+    menus = Menu.list()
+    if not menus:
+        print("No menus available. Please create a menu first.")
+        return
+    print("\nAvailable Menus:")
+    for i, menu in enumerate(menus, start=1):
+        print(f"{i}. {menu.name} - Items: {menu.get_bread_items_str()}")
+    chosen_menu_index = click.prompt("Select a menu by number", type=int)
+    if chosen_menu_index < 1 or chosen_menu_index > len(menus):
+        print("Invalid menu choice.")
+        return
+    chosen_menu = menus[chosen_menu_index - 1]
     try:
         new_drive = admin_schedule_drive(chosen_driver, chosen_area.id, chosen_street.id, date_str, time_str, chosen_menu.id)
         print(f"\nDrive scheduled for {date_str} at {time_str} on {chosen_street.name}, {chosen_area.name} | {menu.name} - Items: {menu.get_bread_items_str()}")
@@ -391,9 +391,22 @@ def schedule_drive_command(date_str, time_str):
         print("Invalid street choice.")
         return
     chosen_street = streets[chosen_index - 1]
+    # Menu selection
+    menus = Menu.list()
+    if not menus:
+        print("No menus available. Please create a menu first.")
+        return
+    print("\nAvailable Menus:")
+    for i, menu in enumerate(menus, start=1):
+        print(f"{i}. {menu.name} - Items: {menu.get_bread_items_str()}")
+    chosen_menu_index = click.prompt("Select a menu by number", type=int)
+    if chosen_menu_index < 1 or chosen_menu_index > len(menus):
+        print("Invalid menu choice.")
+        return
+    chosen_menu = menus[chosen_menu_index - 1]
     try:
-        new_drive = driver_schedule_drive(driver, chosen_area.id, chosen_street.id, date_str, time_str)
-        print(f"\nDrive scheduled for {date_str} at {time_str} on {chosen_street.name}, {chosen_area.name}")
+        new_drive = driver_schedule_drive(driver, chosen_area.id, chosen_street.id, date_str, time_str, chosen_menu.id)
+        print(f"\nDrive scheduled for {date_str} at {time_str} on {chosen_street.name}, {chosen_area.name} | {menu.name} - Items: {menu.get_bread_items_str()}")
     except ValueError as e:
         print(str(e))
 
@@ -628,9 +641,12 @@ def view_notifications():
         return
     
     print(f'Displaying Notifications for: {resident.username}')
+    if not resident.notifications:
+        print(f"You have no new notifications at this time!")
+        return
     count = 1
     for notification in resident.notifications:
-        print(f'{count}. [{notification.timestamp}] {notification.message}\n')
+        print(f'{count}. [{notification.timestamp}] {notification.message}')
         count += 1
     
     return
