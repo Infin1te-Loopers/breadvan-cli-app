@@ -61,7 +61,7 @@ if __name__ == '__main__':
 def init():
     initialize()
     print('Welcome to the Bread Van App!')
-    print("For documentation, visit: https://github.com/LiannMaicoo/Bread_Van_CLI_App")
+    print("For documentation, visit: https://github.com/Infin1te-Loopers/breadvan-cli-app")
 
 
 # User Commands
