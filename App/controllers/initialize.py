@@ -1,5 +1,5 @@
 from App.database import db
-from App.models import Admin, Driver, Resident, Area, Street
+from App.models import Admin, Driver, Resident, Area, Street, Menu, BreadItem, MenuBreadItem
 
 
 def initialize():
@@ -53,24 +53,52 @@ def initialize():
     resident1 = Resident(username="alice",
                          password="alicepass",
                          areaId=area1.id,
-                         streetId=street12.id,
                          houseNumber=48)
     resident2 = Resident(username="jane",
                          password="janepass",
                          areaId=area1.id,
-                         streetId=street12.id,
                          houseNumber=50)
     resident3 = Resident(username="john",
                          password="johnpass",
                          areaId=area2.id,
-                         streetId=street21.id,
                          houseNumber=13)
     db.session.add_all([resident1, resident2, resident3])
     db.session.commit()
 
     #Creating Drives and Stops
-    driver2.schedule_drive(area1.id, street12.id, "2025-10-26", "10:00")
+    driver2.schedule_drive(area1.id, street12.id, "2025-10-26", "10:00", menu_id=None)
     db.session.commit()
                      
     resident2.request_stop(0)
+    db.session.commit()
+
+
+    # Creating Menu and Items
+    
+    # Create Menu
+    menus = [
+        Menu(name="Daily Special")
+    ]
+    for menu in menus:
+        db.session.add(menu)
+    db.session.commit()
+
+    # Create Bread Items
+    bread_items = [
+        BreadItem(name="Whole Wheat", price=5.99),
+        BreadItem(name="Sourdough", price=6.99),
+        BreadItem(name="Rye Bread", price=5.49)
+    ]
+    for bread in bread_items:
+        db.session.add(bread)
+    db.session.commit()
+
+    # Add to menu 1
+    menu_bread_items = [
+        MenuBreadItem(menu_id=1, bread_id=1),
+        MenuBreadItem(menu_id=1, bread_id=2),
+        MenuBreadItem(menu_id=1, bread_id=3)
+    ]
+    for item in menu_bread_items:
+        db.session.add(item)
     db.session.commit()

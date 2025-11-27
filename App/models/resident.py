@@ -4,9 +4,10 @@ from sqlalchemy import JSON
 
 from App.database import db
 from .user import User
-from .driver import Driver
+# Remove: from .driver import Driver  # This causes circular import
 from .stop import Stop
 
+from .StreetSubscription import StreetSubscription
 MAX_INBOX_SIZE = 20
 
 
@@ -14,31 +15,33 @@ class Resident(User):
     __tablename__ = "resident"
 
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    areaId = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
-    streetId = db.Column(db.Integer,
-                         db.ForeignKey('street.id'),
-                         nullable=False)
+   # areaId = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
+   # streetId = db.Column(db.Integer,db.ForeignKey('street.id'),nullable=False)
     houseNumber = db.Column(db.Integer, nullable=False)
     inbox = db.Column(MutableList.as_mutable(JSON), default=[])
-
-    area = db.relationship("Area", backref='residents')
-    street = db.relationship("Street", backref='residents')
-    stops = db.relationship('Stop', backref='resident')
+    notifications = db.relationship('Notification', backref='resident')
+    subscriptions = db.relationship('StreetSubscription', backref='resident')
+    stops = db.relationship('Stop', back_populates='resident')
 
     __mapper_args__ = {
         "polymorphic_identity": "Resident",
     }
+    
 
-    def __init__(self, username, password, areaId, streetId, houseNumber):
+    def list():
+        return Resident.query.all()
+
+    def get_by_id(id):
+        return Resident.query.get(id)
+
+    def __init__(self, username, password, areaId, houseNumber):
         super().__init__(username, password)
         self.areaId = areaId
-        self.streetId = streetId
         self.houseNumber = houseNumber
 
     def get_json(self):
         user_json = super().get_json()
         user_json['areaId'] = self.areaId
-        user_json['streetId'] = self.streetId
         user_json['houseNumber'] = self.houseNumber
         user_json['inbox'] = self.inbox
         return user_json
@@ -77,5 +80,35 @@ class Resident(User):
         return self.inbox
 
     def view_driver_stats(self, driverId):
+        # Lazy import to avoid circular dependency
+        from .driver import Driver
         driver = Driver.query.get(driverId)
         return driver
+
+    # methods to add
+    # subscribe method(street_id)
+    def subscribe(self, street_id):
+
+        subscribe = StreetSubscription.query.filter_by(resident_id = self.id, street_id = street_id).first()
+        
+        if subscribe:
+            return 
+        
+        subscription = StreetSubscription (self.id, street_id)
+        db.session.add(subscription)
+        db.session.commit()
+        return subscription
+    
+    
+    # unsubscribe method(street_id)
+    def unsubscribe(self, street_id):
+
+        subscribe = StreetSubscription.query.filter_by(resident_id = self.id, street_id = street_id).first()
+        
+        if not subscribe:
+            return 
+        
+        db.session.delete(subscribe)
+        db.session.commit()
+    
+    # get_notifications - view inbox?
