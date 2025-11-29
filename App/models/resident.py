@@ -8,6 +8,7 @@ from .user import User
 from .stop import Stop
 
 from .StreetSubscription import StreetSubscription
+from .Notification import Notification
 MAX_INBOX_SIZE = 20
 
 
@@ -64,18 +65,25 @@ class Resident(User):
             db.session.commit()
         return
 
-    def receive_notif(self, message):
-        if self.inbox is None:
-            self.inbox = []
+    def receive_notif(self, message, drive_id=None):
+      
+      notification = Notification(message=message, resident_id=self.id, drive_id=drive_id)
+      db.session.add(notification)
+    
+      # keeping inbox JSON logic incase
+      if self.inbox is None:
+        self.inbox = []
 
-        if len(self.inbox) >= MAX_INBOX_SIZE:
-            self.inbox.pop(0)
+      if len(self.inbox) >= MAX_INBOX_SIZE:
+        self.inbox.pop(0)
 
-        timestamp = datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
-        notif = f"[{timestamp}]: {message}"
-        self.inbox.append(notif)
-        db.session.add(self)
-        db.session.commit()
+      timestamp = datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
+      notif = f"[{timestamp}]: {message}"
+      self.inbox.append(notif)
+    
+      db.session.commit()
+      return notification
+
 
     def view_inbox(self):
         return self.inbox

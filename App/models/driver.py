@@ -103,7 +103,7 @@ class Driver(User):
                     resident = Resident.query.get(subscription.resident_id)
                     if resident:
                         resident.receive_notif(
-                            f"CANCELLED: Drive {drive.id} by {self.id} on {drive.date} at {drive.time}"
+                            f"CANCELLED: Drive {drive.id} by {self.id} on {drive.date} at {drive.time}", drive.id
                         )
                 db.session.commit()
         return None
