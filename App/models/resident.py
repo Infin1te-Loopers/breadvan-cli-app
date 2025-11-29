@@ -15,8 +15,8 @@ class Resident(User):
     __tablename__ = "resident"
 
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-   # areaId = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
-   # streetId = db.Column(db.Integer,db.ForeignKey('street.id'),nullable=False)
+    areaId = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
+    streetId = db.Column(db.Integer,db.ForeignKey('street.id'),nullable=False)
     houseNumber = db.Column(db.Integer, nullable=False)
     inbox = db.Column(MutableList.as_mutable(JSON), default=[])
     notifications = db.relationship('Notification', backref='resident')
@@ -34,9 +34,10 @@ class Resident(User):
     def get_by_id(id):
         return Resident.query.get(id)
 
-    def __init__(self, username, password, areaId, houseNumber):
+    def __init__(self, username, password, areaId, streetId, houseNumber):
         super().__init__(username, password)
         self.areaId = areaId
+        self.streetId = streetId
         self.houseNumber = houseNumber
 
     def get_json(self):
