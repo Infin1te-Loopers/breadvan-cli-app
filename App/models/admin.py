@@ -104,7 +104,7 @@ class Admin(User):
         if street:
             for resident in street.residents:
                 resident.receive_notif(
-                    f"SCHEDULED>> Drive {new_drive.id} by Driver {self.id} on {date} at {time}"
+                    f"SCHEDULED>> Drive {new_drive.id} by Driver {self.id} on {date} at {time}", new_drive.id
                 )
             db.session.commit()
         return (new_drive)

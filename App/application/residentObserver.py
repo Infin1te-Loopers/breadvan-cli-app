@@ -13,7 +13,7 @@ class residentObserver(Observer):
     def update(self, drive):
         resident = Resident.query.get(self.residentId)
         message = f'Alert: Drive {drive.id} would be coming to you on {drive.street.name}, {drive.street.area.name} on {drive.date} at {drive.time}.'
-        message += f'\nMENU: {drive.menu.name}'
+        message += f'\nMENU: {drive.menu.name} - Items: {drive.menu.get_bread_items_str()}'
         new_notification = Notification(message, self.residentId, drive.id)
         db.session.add(new_notification)
         db.session.commit()

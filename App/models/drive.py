@@ -13,6 +13,7 @@ class Drive(db.Model):
     status = db.Column(db.String(20), nullable=False) # enum ?? 
     stops = db.relationship('Stop', back_populates='drive')
     notifications = db.relationship('Notification', backref='drive')
+   # area = db.relationship("Area", back_populates="drives")
     
     
     def __init__(self, driverId, areaId, streetId, date, time, status, menu_id=None):
