@@ -53,14 +53,17 @@ def initialize():
     resident1 = Resident(username="alice",
                          password="alicepass",
                          areaId=area1.id,
+                         streetId=street12.id,
                          houseNumber=48)
     resident2 = Resident(username="jane",
                          password="janepass",
                          areaId=area1.id,
+                         streetId=street12.id,
                          houseNumber=50)
     resident3 = Resident(username="john",
                          password="johnpass",
                          areaId=area2.id,
+                         streetId=street21.id,
                          houseNumber=13)
     db.session.add_all([resident1, resident2, resident3])
     db.session.commit()

@@ -7,7 +7,7 @@ class Area(db.Model):
     name = db.Column(db.String(20), nullable=False, unique=True)
    # driveId = db.Column(db.Integer, db.ForeignKey('drive.id'), nullable=False)
     streets = db.relationship('Street', backref='area')
-   # drive = db.relationship("Drive", back_populates="area")
+    drives = db.relationship("Drive", backref="area")
    # residents = db.relationship('Resident', back_populates='area')
 
     def __init__(self, name):

@@ -8,7 +8,7 @@ from App.utils.display import *
 
 from App.database import db, get_migrate
 from App.database import db
-from App.models import User, Admin, Driver, Resident, Drive, Stop, Area, Street, StreetSubscription, Notification
+from App.models import User, Admin, Driver, Resident, Drive, Stop, Area, Street, StreetSubscription, Notification, Menu, MenuBreadItem, BreadItem
 from App.main import create_app
 from App.controllers import (get_user, get_all_users_json, get_all_users,
                              get_user_by_username, initialize)
@@ -391,12 +391,12 @@ def end_drive_command():
         print(str(e))
 
 @driver_cli.command("view_requested_stops", help="View requested stops for a drive")
-@click.argument("driveId")
-def view_requested_stops_command(driveId):
+@click.argument("drive_id")
+def view_requested_stops_command(drive_id):
     driver = require_driver()
     if not driver:
         return
-    stops = driver_view_requested_stops(driver, driveId)
+    stops = driver_view_requested_stops(driver, drive_id)
     if not stops:
         print("No requested stops for this drive.")
         return
@@ -614,6 +614,21 @@ def list_notifications():
     if not display_table(Notification.list(), ["id", "message", "resident_id", "drive_id"], "Notification Table"):
             print("\nThere are currently no records in [Notification]\n") 
 
+
+@app.cli.command("list-menus")
+def list_menus():
+    menus = Menu.list()
+    if not menus:
+        print("\nThere are currently no records in [Menu]\n")
+        return
+
+    for menu in menus:
+        bread_list_str = menu.get_bread_items_str()
+        
+        print(f"ID: {menu.id} | Name: {menu.name}")
+        print(f"  Bread Items: {bread_list_str}")
+        print("-" * 80)
+    print("\n")
 
 @app.cli.command("demo-observer")
 def demo_observer():
