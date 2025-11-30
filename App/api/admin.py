@@ -104,9 +104,9 @@ def create_street():
 @bp.delete("/streets/<int:street_id>")
 @jwt_required()
 @role_required("Admin")
-def delete_street(street_id):
+def delete_street(street_id, area_id): #added area_id 
     try:
-        admin_controller.admin_delete_street(street_id)
+        admin_controller.admin_delete_street(street_id, area_id)
     except ValueError as e:
         return jsonify({"error": {"code": "resource_not_found", "message": str(e)}}), 404
     return "", 204
