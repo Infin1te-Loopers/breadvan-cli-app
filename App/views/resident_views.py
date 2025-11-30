@@ -67,3 +67,80 @@ def driver_stats():
     except ValueError as e:
         return jsonify({'error': {'code': 'not_found', 'message': str(e)}}), 404
     return jsonify({'stats': stats}), 200
+
+
+#Observer related
+
+@resident_views.route('/resident/subscriptions', methods=['POST'])
+@jwt_required()
+@role_required('Resident')
+def subscribe():
+    data = request.get_json() or {}
+    street_id = data.get('street_id')
+    if not street_id:
+        return jsonify({'error': {'code': 'validation_error', 'message': 'street_id required'}}), 422
+    
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    try:
+        subscription = resident_controller.resident_subscribe(resident, street_id)
+        return jsonify({'message': 'Subscribed successfully', 'street_id': street_id}), 201
+    except ValueError as e:
+        return jsonify({'error': {'code': 'validation_error', 'message': str(e)}}), 400
+
+@resident_views.route('/resident/subscriptions/<int:street_id>', methods=['DELETE'])
+@jwt_required()
+@role_required('Resident')
+def unsubscribe(street_id):
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    try:
+        resident_controller.resident_unsubscribe(resident, street_id)
+        return jsonify({'message': 'Unsubscribed successfully'}), 200
+    except ValueError as e:
+        return jsonify({'error': {'code': 'resource_not_found', 'message': str(e)}}), 404
+
+@resident_views.route('/resident/subscriptions', methods=['GET'])
+@jwt_required()
+@role_required('Resident')
+def get_subscriptions():
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    subscriptions = resident_controller.resident_get_subscriptions(resident)
+    items = [{"street_id": s.street_id, "street_name": s.street.name if s.street else "Unknown"} for s in subscriptions]
+    return jsonify({'subscriptions': items}), 200
+
+@resident_views.route('/resident/notifications', methods=['GET'])
+@jwt_required()
+@role_required('Resident')
+def get_notifications():
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    notifications = resident_controller.resident_get_notifications(resident)
+    items = [{
+        'id': n.id,
+        'message': n.message,
+        'drive_id': n.drive_id,
+        'created_at': n.id  # timestamp
+    } for n in notifications]
+    return jsonify({'notifications': items}), 200
+
+@resident_views.route('/resident/drives', methods=['GET'])
+@jwt_required()
+@role_required('Resident')
+def get_available_drives():
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    drives = resident_controller.resident_get_available_drives(resident)
+    
+    items = []
+    for drive in drives:
+        drive_data = drive.get_json()
+        if drive.menu:
+            drive_data["menu"] = {
+                "name": drive.menu.name,
+                "items": drive.menu.get_bread_items_str()
+            }
+        items.append(drive_data)
+    
+    return jsonify({'drives': items}), 200
