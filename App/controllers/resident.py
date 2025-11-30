@@ -50,3 +50,20 @@ def resident_unsubscribe(resident, street_id):
 
 def resident_view_inbox(resident):
     return resident.view_inbox()
+
+
+def resident_get_subscriptions(resident):
+    from App.models.StreetSubscription import StreetSubscription
+    return StreetSubscription.query.filter_by(resident_id=resident.id).all()
+
+def resident_get_notifications(resident):
+    from App.models.Notification import Notification
+    return Notification.query.filter_by(resident_id=resident.id).all()
+
+def resident_get_available_drives(resident):
+    from App.models.Drive import Drive
+    return Drive.query.filter_by(
+        areaId=resident.areaId,
+        streetId=resident.streetId,
+        status="Upcoming"
+    ).all()

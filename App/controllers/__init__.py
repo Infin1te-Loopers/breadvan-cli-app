@@ -20,7 +20,10 @@ from .resident import (
     resident_view_stock,
     resident_view_inbox,
     resident_subscribe,
-    resident_unsubscribe
+    resident_unsubscribe,
+    resident_get_subscriptions,      
+    resident_get_notifications,      
+    resident_get_available_drives, 
 )
 
 from .driver import (
@@ -46,7 +49,9 @@ from .admin import (
     admin_add_item,
     admin_delete_item,
     admin_view_all_items,
-    admin_schedule_drive
+    admin_schedule_drive,
+    admin_create_menu,
+    admin_view_menus
 )
 
 
@@ -57,7 +62,9 @@ __all__ = [
 
     # resident
     "resident_create", "resident_request_stop", "resident_cancel_stop",
-    "resident_view_driver_stats", "resident_view_stock", "resident_view_inbox",
+    "resident_view_driver_stats", "resident_subscribe", "resident_unsubscribe", 
+    "resident_view_stock", "resident_view_inbox","resident_get_subscriptions",
+     "resident_get_notifications", "resident_get_available_drives",
 
     # driver
     "driver_schedule_drive", "driver_cancel_drive", "driver_view_drives",
@@ -68,5 +75,6 @@ __all__ = [
     "admin_create_driver", "admin_delete_driver", "admin_add_area",
     "admin_delete_area", "admin_view_all_areas", "admin_add_street",
     "admin_delete_street", "admin_view_all_streets", "admin_add_item",
-    "admin_delete_item", "admin_view_all_items", "admin_schedule_drive"
+    "admin_delete_item", "admin_view_all_items", "admin_schedule_drive",
+    "admin_create_menu", "admin_view_menus"
 ]

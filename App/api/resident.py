@@ -65,3 +65,81 @@ def driver_stats():
     uid = current_user_id()
     stats = resident_controller.resident_view_driver_stats(uid, street_id, from_date, to_date)
     return jsonify({"stats": stats}), 200
+
+
+#Observer
+
+@bp.post("/subscriptions")
+@jwt_required()
+@role_required("resident")
+def subscribe():
+    data = request.get_json() or {}
+    street_id = data.get("street_id")
+    if not street_id:
+        return jsonify({"error": {"code": "validation_error", "message": "street_id required"}}), 422
+    
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    try:
+        subscription = resident_controller.resident_subscribe(resident, street_id)
+        return jsonify({"message": "Subscribed successfully", "street_id": street_id}), 201
+    except ValueError as e:
+        return jsonify({"error": {"code": "validation_error", "message": str(e)}}), 400
+
+
+@bp.delete("/subscriptions/<int:street_id>")
+@jwt_required()
+@role_required("resident")
+def unsubscribe(street_id):
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    try:
+        resident_controller.resident_unsubscribe(resident, street_id)
+        return jsonify({"message": "Unsubscribed successfully"}), 200
+    except ValueError as e:
+        return jsonify({"error": {"code": "resource_not_found", "message": str(e)}}), 404
+
+@bp.get("/subscriptions")
+@jwt_required()
+@role_required("resident")
+def get_subscriptions():
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    subscriptions = resident_controller.resident_get_subscriptions(resident)
+    items = [{"street_id": s.street_id, "street_name": s.street.name if s.street else "Unknown"} for s in subscriptions]
+    return jsonify({"subscriptions": items}), 200
+
+@bp.get("/notifications")
+@jwt_required()
+@role_required("resident")
+def get_notifications():
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    notifications = resident_controller.resident_get_notifications(resident)
+    items = [{
+        "id": n.id,
+        "message": n.message,
+        "drive_id": n.drive_id,
+        "created_at": n.id  
+    } for n in notifications]
+    return jsonify({"notifications": items}), 200
+
+@bp.get("/drives")
+@jwt_required()
+@role_required("resident")
+def get_available_drives():
+    uid = current_user_id()
+    resident = user_controller.get_user(uid)
+    drives = resident_controller.resident_get_available_drives(resident)
+    
+    items = []
+    for drive in drives:
+        drive_data = drive.get_json()
+        if drive.menu:
+            drive_data["menu"] = {
+                "name": drive.menu.name,
+                "items": drive.menu.get_bread_items_str()
+            }
+        items.append(drive_data)
+    
+    return jsonify({"drives": items}), 200
