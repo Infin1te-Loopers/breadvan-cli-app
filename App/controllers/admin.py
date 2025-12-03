@@ -1,11 +1,11 @@
-from App.models import Admin, Driver, Area, Street, Item
+from App.models import Admin, Driver, Area, Street, Item, User
 from .driver import driver_schedule_drive
 from App.database import db
 
 # All admin-related business logic will be moved here as functions
 
 def admin_create_driver(username, password):
-    existing_user = Admin.query.filter_by(username=username).first()
+    existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         raise ValueError("Username already taken.")
     driver = Driver(username=username, password=password, status="Offline", areaId=0, streetId=None)
@@ -80,7 +80,7 @@ def admin_schedule_drive(driver, area_id, street_id, date_str, time_str, menu_id
     return new_drive
 
 
-def admin_create_menu(name, bread_item_ids=None):  ## double check this
+def admin_create_menu(name, bread_item_ids=None):  
     try:
         from App.models.Menu import Menu
         from App.models.MenuBreadItem import MenuBreadItem
