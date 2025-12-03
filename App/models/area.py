@@ -15,3 +15,6 @@ class Area(db.Model):
 
     def get_json(self):
         return {'id': self.id, 'name': self.name}
+
+    def list():
+        return Area.query.all()

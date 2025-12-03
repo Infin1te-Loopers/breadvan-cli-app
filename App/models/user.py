@@ -17,6 +17,9 @@ class User(db.Model):
         "polymorphic_identity": "user"
     }
 
+    def list():
+        return User.query.all()
+
     def __init__(self, username, password):
         self.username = username
         self.set_password(password)
