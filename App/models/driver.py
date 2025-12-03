@@ -42,7 +42,7 @@ class Driver(User):
         user_json = super().get_json()
         user_json['status'] = self.status
         # Include street_id from User (inherited)
-        user_json['street_id'] = self.street_id
+        user_json['streetId'] = self.streetId
         # Include runtime state if needed
         if hasattr(self, 'areaId'):
             user_json['areaId'] = self.areaId
