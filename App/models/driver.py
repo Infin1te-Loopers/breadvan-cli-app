@@ -85,6 +85,7 @@ class Driver(User):
                           status="Upcoming")
         db.session.add(new_drive)
         db.session.commit()
+        self.notify(new_drive, "Upcoming")
         return new_drive
 
     def cancel_drive(self, driveId):  
@@ -93,19 +94,6 @@ class Driver(User):
             drive.status = "Cancelled"
             db.session.commit()
 
-           
-            from .StreetSubscription import StreetSubscription
-            from .resident import Resident
-            
-            if drive.streetId is not None:
-                subscriptions = StreetSubscription.query.filter_by(street_id=drive.streetId).all()
-                for subscription in subscriptions:
-                    resident = Resident.query.get(subscription.resident_id)
-                    if resident:
-                        resident.receive_notif(
-                            f"CANCELLED: Drive {drive.id} by {self.id} on {drive.date} at {drive.time}", drive.id
-                        )
-                db.session.commit()
         return None
 
     def view_drives(self):
@@ -137,3 +125,18 @@ class Driver(User):
         if drive:
             return drive.stops
         return None
+    
+    def notify(self,drive,msg):
+        from .StreetSubscription import StreetSubscription
+        from .resident import Resident
+            
+        if drive.streetId is not None:
+            subscriptions = StreetSubscription.query.filter_by(street_id=drive.streetId).all()
+            for subscription in subscriptions:
+                resident = Resident.query.get(subscription.resident_id)
+                if resident:
+                    resident.receive_notif(
+                        f"{msg}: Drive {drive.id} by {self.id} on {drive.date} at {drive.time}", drive.id
+                    )
+            db.session.commit()
+        return

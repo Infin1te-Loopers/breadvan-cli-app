@@ -61,7 +61,7 @@ def resident_get_notifications(resident):
     return Notification.query.filter_by(resident_id=resident.id).all()
 
 def resident_get_available_drives(resident):
-    from App.models.Drive import Drive
+    from App.models.drive import Drive
     return Drive.query.filter_by(
         areaId=resident.areaId,
         streetId=resident.streetId,

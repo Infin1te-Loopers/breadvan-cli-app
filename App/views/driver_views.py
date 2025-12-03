@@ -43,11 +43,12 @@ def create_drive():
     street_id = data.get('street_id')
     date = data.get('date')
     time = data.get('time')
+    menu = data.get('menu_id')
     if not street_id or not date or not time:
         return jsonify({'error': {'code': 'validation_error', 'message': 'street_id, date and time required'}}), 422
     uid = current_user_id()
     driver = user_controller.get_user(uid)
-    drive = driver_controller.driver_schedule_drive(driver, area_id, street_id, date, time)
+    drive = driver_controller.driver_schedule_drive(driver, area_id, street_id, date, time, menu)
     out = drive.get_json() if hasattr(drive, 'get_json') else drive
     return jsonify(out), 201
 

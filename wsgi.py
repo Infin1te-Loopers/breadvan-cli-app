@@ -51,13 +51,13 @@ from App.controllers.user import (
 app = create_app()
 migrate = get_migrate(app)
 
-with app.app_context():
-    upgrade()
-    existing = db.session.query(User).filter_by(username='admin').first()
-    if not existing:
-        new_admin = Admin(username='admin', password='adminpass')
-        db.session.add(new_admin)
-        db.session.commit()
+# with app.app_context():
+#     upgrade()
+#     existing = db.session.query(User).filter_by(username='admin').first()
+#     if not existing:
+#         new_admin = Admin(username='admin', password='adminpass')
+#         db.session.add(new_admin)
+#         db.session.commit()
 
 
 # Initialisation
