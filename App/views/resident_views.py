@@ -75,16 +75,16 @@ def driver_stats():
 @jwt_required()
 @role_required('Resident')
 def subscribe():
-    data = request.get_json() or {}
-    street_id = data.get('street_id')
-    if not street_id:
-        return jsonify({'error': {'code': 'validation_error', 'message': 'street_id required'}}), 422
+    # data = request.get_json() or {}
+    # street_id = data.get('street_id')
+    # if not street_id:
+    #     return jsonify({'error': {'code': 'validation_error', 'message': 'street_id required'}}), 422
     
     uid = current_user_id()
     resident = user_controller.get_user(uid)
     try:
-        subscription = resident_controller.resident_subscribe(resident, street_id)
-        return jsonify({'message': 'Subscribed successfully', 'street_id': street_id}), 201
+        subscription = resident_controller.resident_subscribe(resident)
+        return jsonify({'message': 'Subscribed successfully'}), 201
     except ValueError as e:
         return jsonify({'error': {'code': 'validation_error', 'message': str(e)}}), 400
 

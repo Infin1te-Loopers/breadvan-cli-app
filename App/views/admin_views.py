@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
-from App.api.security import role_required
+from App.api.security import role_required, current_user_id
 from App.controllers import admin as admin_controller
 from App.controllers import resident as resident_controller
 from App.controllers import user as user_controller
