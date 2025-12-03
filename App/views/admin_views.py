@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
-from App.api.security import role_required
+from App.api.security import role_required, current_user_id
 from App.controllers import admin as admin_controller
 from App.controllers import resident as resident_controller
 from App.controllers import user as user_controller
@@ -119,3 +119,75 @@ def list_streets():
     streets = admin_controller.admin_view_all_streets()
     items = [s.get_json() if hasattr(s, 'get_json') else s for s in (streets or [])]
     return jsonify({'items': items}), 200
+
+
+@admin_views.route('/admin/drives', methods=['POST'])
+@jwt_required()
+@role_required('Admin')
+def schedule_drive():
+    data = request.get_json() or {}
+    driver_id = data.get('driver_id')
+    area_id = data.get('area_id')
+    street_id = data.get('street_id')
+    date = data.get('date')
+    time = data.get('time')
+    menu_id = data.get('menu_id')
+    
+    if not all([driver_id, area_id, street_id, date, time]):
+        return jsonify({'error': {'code': 'validation_error', 'message': 'Required: driver_id, area_id, street_id, date, time'}}), 422
+    
+    uid = current_user_id()
+    admin = user_controller.get_user(uid)
+    driver = user_controller.get_user(driver_id)
+    
+    try:
+        drive = admin_controller.admin_schedule_drive(driver, area_id, street_id, date, time, menu_id)
+        return jsonify(drive.get_json()), 201
+    except ValueError as e:
+        return jsonify({'error': {'code': 'validation_error', 'message': str(e)}}), 400
+
+
+@admin_views.route('/admin/menus', methods=['GET'])
+@jwt_required()
+@role_required('Admin')
+def list_menus():
+    from App.models.Menu import Menu
+    menus = admin_controller.admin_view_menus()
+    items = []
+    for menu in menus:
+        menu_data = {
+            "id": menu.id,
+            "name": menu.name,
+            "bread_items": []
+        }
+        for item in menu.get_bread_items():
+            menu_data["bread_items"].append({
+                "id": item.id,
+                "name": item.name,
+                "price": item.price
+            })
+        items.append(menu_data)
+    return jsonify({"menus": items}), 200
+
+
+@admin_views.route('/admin/menus', methods=['POST'])
+@jwt_required()
+@role_required('Admin')
+def create_menu():
+    menu = admin_controller.admin_create_menu(name, bread_item_ids)
+    return jsonify({...}), 201
+
+
+@admin_views.route('/admin/notifications', methods=['GET'])
+@jwt_required()
+@role_required('Admin')
+def view_all_notifications():
+    from App.models.Notification import Notification
+    notifications = admin_controller.admin_view_all_notifications()
+    items = [{
+        "id": n.id,
+        "message": n.message,
+        "resident_id": n.resident_id,
+        "drive_id": n.drive_id
+    } for n in notifications]
+    return jsonify({"notifications": items}), 200

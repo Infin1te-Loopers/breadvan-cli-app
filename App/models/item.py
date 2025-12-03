@@ -15,6 +15,9 @@ class Item(db.Model):
        self.description = description
        self.tags = tags
 
+    def list():
+        return Item.query.all()
+
     def get_json(self):
        return {
            'id': self.id,

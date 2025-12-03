@@ -6,7 +6,7 @@ class User(db.Model):
     __tablename__ = "user"
     
     id = db.Column(db.Integer, primary_key=True)
-    #street_id = db.Column(db.Integer, db.ForeignKey('street.id'))
+    street_id = db.Column(db.Integer, db.ForeignKey('street.id'))
     username =  db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     logged_in = db.Column(db.Boolean, nullable=False, default=False)
@@ -16,6 +16,9 @@ class User(db.Model):
         "polymorphic_on": type,
         "polymorphic_identity": "user"
     }
+
+    def list():
+        return User.query.all()
 
     def __init__(self, username, password):
         self.username = username
