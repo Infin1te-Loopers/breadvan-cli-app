@@ -1,11 +1,12 @@
 import os, tempfile, pytest, logging, unittest
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import date, time
+from datetime import date, datetime, time, timedelta
 
 from App.main import create_app
 from App.database import db, create_db
 from App.models import User, Resident, Driver, Admin, Area, Street, Drive, Stop, Item, DriverStock
 from App.controllers import *
+
 
 
 LOGGER = logging.getLogger(__name__)
@@ -54,7 +55,7 @@ class ResidentUnitTests(unittest.TestCase):
     def test_resident_getJSON(self):
         resident = Resident("john", "johnpass", 1, 2, 123)
         resident_json = resident.get_json()
-        self.assertDictEqual(resident_json, {"id":None, "username":"john", "areaId":1, "streetId":2, "houseNumber":123, "inbox":[]})
+        self.assertDictEqual(resident_json, {"id":None, "username":"john", "areaId":1, "houseNumber":123, "inbox":[]})
 
     def test_receive_notif(self):
         resident = Resident("john", "johnpass", 1, 2, 123)
@@ -240,8 +241,9 @@ class ResidentsIntegrationTests(unittest.TestCase):
         self.area = admin_add_area("St. Augustine")
         self.street = admin_add_street(self.area.id, "Warner Street")
         self.driver = admin_create_driver("driver1", "pass")
+        self.menu = admin_create_menu("Menu1", None)
         self.resident = resident_create("john", "johnpass", self.area.id, self.street.id, 123)
-        self.drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, "2025-12-31", "11:30")
+        self.drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, "2025-12-31", "11:30",self.menu.id)
         self.item = admin_add_item("Whole-Grain Bread", 19.50, "Healthy whole-grain loaf", ["whole-grain", "healthy"])
 
 
@@ -270,17 +272,21 @@ class DriversIntegrationTests(unittest.TestCase):
         self.area = admin_add_area("St. Augustine")
         self.street = admin_add_street(self.area.id, "Warner Street")
         self.driver = admin_create_driver("driver1", "pass")
+        self.menu = admin_create_menu("Menu1", None)
         self.resident = resident_create("john", "johnpass", self.area.id, self.street.id, 123)
-        self.drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, "2025-12-31", "11:30")
+        self.drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, "2025-12-31", "11:30", self.menu.id)
         self.stop = resident_request_stop(self.resident, self.drive.id)
         self.item = admin_add_item("Whole-Grain Bread", 19.50, "Healthy whole-grain loaf", ["whole-grain", "healthy"])
+        self.time = datetime.now() + timedelta(minutes=5)
+        self.time_str = self.time.time().strftime("%H:%M")
+        self.date = datetime.now().date().strftime("%Y-%m-%d")
 
     def test_schedule_drive(self):
-        drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, "2025-11-30", "09:00")
+        drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, self.date ,self.time_str, self.menu.id)
         self.assertIsNotNone(drive)
 
     def test_cancel_drive(self):
-        drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, "2025-11-13", "08:15")
+        drive = driver_schedule_drive(self.driver, self.area.id, self.street.id, self.date , self.time_str,self.menu.id)
         driver_cancel_drive(self.driver, drive.id)
         assert drive.status == "Cancelled"
 

@@ -1,5 +1,4 @@
 from App.database import db
-from .Notification import Notification
 
 class Drive(db.Model):
     __tablename__ = 'drive'
@@ -15,6 +14,8 @@ class Drive(db.Model):
     notifications = db.relationship('Notification', backref='drive')
    # area = db.relationship("Area", back_populates="drives")
     
+    def list():
+        return Drive.query.all()
     
     def __init__(self, driverId, areaId, streetId, date, time, status, menu_id=None):
         self.driverId = driverId
