@@ -10,13 +10,12 @@ class Notification(db.Model):
     message = db.Column(db.String(128), nullable=False)
     resident_id = db.Column(db.Integer, db.ForeignKey('resident.id'))
     drive_id = db.Column(db.Integer, db.ForeignKey('drive.id'))
-    timestamp = db.Column(db.DateTime, nullable=False)
+    timestamp = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
    
     def __init__(self, message, resident_id, drive_id):
         self.message = message
         self.resident_id = resident_id
         self.drive_id = drive_id
-        self.timestamp = datetime.now()
 
     
     def list():
