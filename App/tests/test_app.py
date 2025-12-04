@@ -234,17 +234,17 @@ class NotificationUnitTests(unittest.TestCase):
         assert notification.resident_id == resident.id
 
         
-class StreetSubcriptionUnitTests(unittest.TestCase):
+class StreetSubscriptionUnitTests(unittest.TestCase):
 
-    def test_new_streetSubcription(self):
+    def test_new_streetSubscription(self):
 
         street = Street("TestStreet", 1)
         resident = Resident("frank", "frankpass", 1, street.id, 123)
 
-        subcription = StreetSubscription (resident.id, street.id)
+        subscription = StreetSubscription (resident.id, street.id)
       
-        assert subcription.resident_id == resident.id
-        assert subcription.street_id == street.id
+        assert subscription.resident_id == resident.id
+        assert subscription.street_id == street.id
 
 
 '''
