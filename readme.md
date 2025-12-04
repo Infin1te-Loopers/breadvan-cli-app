@@ -28,6 +28,24 @@ This creates and initializes all accounts and tables.
 flask <group> <command> [args...]
 ```
 
+## Table Inspection Commands
+
+| Description | Command |
+|-------------|---------|
+| Display user table | `flask list-users` |
+| Display admin table | `flask list-admins` |
+| Display resident table | `flask list-residents` |
+| Display driver table | `flask list-drivers` |
+| Display area table | `flask list-areas` |
+| Display street table | `flask list-streets` |
+| Display drive table | `flask list-drives` |
+| Display stop table | `flask list-stops` |
+| Display street subscription table | `flask list-street-subscriptions` |
+| Display notification table | `flask list-notifications` |
+| Display menu table | `flask list-menus` |
+| Display bread item table | `flask list-bread-items` |
+| Display menu bread item table | `flask list-menu-bread-items` |
+
 
 ## 👤 User Commands | Group: flask user
 ### Login
