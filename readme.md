@@ -28,7 +28,7 @@ This creates and initializes all accounts and tables.
 flask <group> <command> [args...]
 ```
 
-## Table Inspection Commands
+## (NEW) Table Inspection Commands
 
 | Description | Command |
 |-------------|---------|
@@ -46,6 +46,15 @@ flask <group> <command> [args...]
 | Display bread item table | `flask list-bread-items` |
 | Display menu bread item table | `flask list-menu-bread-items` |
 
+## (NEW) Special Feature Commands for Observer Pattern
+
+| User Group | Command |
+|------------|---------|
+| Resident | `flask resident subscribe` |
+| Resident | `flask resident unsubscribe` |
+| Resident | `flask resident view-notifications` |
+| Resident | `flask resident view-subscriptions` |
+| Admin | `flask admin schedule-drive YYYY-MM-DD HH:MM` |
 
 ## 👤 User Commands | Group: flask user
 ### Login
