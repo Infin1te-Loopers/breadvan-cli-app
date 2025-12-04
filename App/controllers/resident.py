@@ -11,7 +11,7 @@ def resident_create(username, password, area_id, street_id, house_number):
 
 def resident_request_stop(resident, drive_id):
     drives = Drive.query.filter_by(areaId=resident.areaId, streetId=resident.streetId, status="Upcoming").all()
-    if not (d.id == drive_id for d in drives):
+    if not any(d.id == drive_id for d in drives):
         raise ValueError("Invalid drive choice.")
     existing_stop = Stop.query.filter_by(driveId=drive_id, residentId=resident.id).first()
     if existing_stop:

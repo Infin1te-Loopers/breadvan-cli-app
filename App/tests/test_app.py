@@ -188,7 +188,235 @@ class DriverStockUnitTests(unittest.TestCase):
         driverStock = DriverStock(1, 2, 30)
         driverStock_json = driverStock.get_json()
         self.assertDictEqual(driverStock_json, {"id":None, "driverId":1, "itemId":2, "quantity":30})
+
+class MenuUnitTests(unittest.TestCase): ##new unit test start here
+
+    def test_new_menu(self):
+
+        menu = Menu("TestMenu")
+
+        db.session.add(menu)
+        db.session.commit()
+
+        assert menu.id == 1
+        assert menu.name == "TestMenu"
+
+    def test_menu_list(self):
+
+        menu1 = Menu("TestMenu1")
+        menu2 = Menu("TestMenu2")
+
+        db.session.add(menu1)
+        db.session.add(menu2)
+
+        db.session.commit()
+
+        menus = Menu.list()
+
+        assert len(menus) == 2
+        assert any(menu.name == "TestMenu1" for menu in menus)
+        assert any(menu.name == "TestMenu2" for menu in menus)
+
+    def test_get_breadItem(self):
+
+        menu = Menu("TestMenu")
+        bread = BreadItem ("TestBread", 12.50)
+
+        db.session.add(menu)
+        db.session.add(bread)
+        db.session.commit()
+
+        menubreaditem = MenuBreadItem(menu.id, bread.id)
+        db.session.add(menubreaditem)
+        db.session.commit()
+
+        items = menu.get_bread_items()
+
+        assert len(items) == 1
+        assert any (item.id == bread.id for item in items)
+
+
+
+class BreadItemUnitTests(unittest.TestCase):
+
+    def test_new_breadItem(self):
+
+        bread = BreadItem ("TestBread", 12.50)
+
+        db.session.add(bread)
+        db.session.commit()
+
+        assert bread.id == 1
+        assert bread.name == "TestBread"
+
+    def test_bread_list(self):
+
+        bread1 = BreadItem ("TestBread1", 12.50)
+        bread2 = BreadItem ("TestBread2", 12.50)
         
+        db.session.add(bread1)
+        db.session.add(bread2)
+        db.session.commit()
+
+        breads = BreadItem.list()
+
+        assert len(breads) == 2
+        assert any(bread.name == "TestBread1" for bread in breads)
+        assert any(bread.name == "TestBread2" for bread in breads)
+
+class MenuBreadItemUnitTests(unittest.TestCase):
+
+    def test_new_menuBreadItem(self):
+
+        menu = Menu("TestMenu")
+        bread = BreadItem ("TestBread", 12.50)
+
+        db.session.add(menu)
+        db.session.add(bread)
+        db.session.commit()
+
+        menuBreadItem = MenuBreadItem(menu.id,bread.id)
+
+        db.session.add(menuBreadItem)
+        db.session.commit()
+
+        storedMenuBreadItem = MenuBreadItem.query.filter_by(menu_id = menu.id,bread_id = bread.id).first()
+
+        assert storedMenuBreadItem is not None      
+        assert storedMenuBreadItem.menu_id == menu.id
+        assert storedMenuBreadItem.bread_id == bread.id
+
+    def test_menuBreadItem_list(self):
+        
+        menu1 = Menu("TestMenu1")
+        bread1 = BreadItem ("TestBread1", 12.50)
+
+        menu2 = Menu("TestMenu2")
+        bread2 = BreadItem ("TestBread2", 12.50)
+
+        db.session.add(menu1)
+        db.session.add(bread1)
+        db.session.add(menu2)
+        db.session.add(bread2)
+        db.session.commit()
+
+        menuBreadItem1 = MenuBreadItem(menu1.id,bread1.id)
+        menuBreadItem2 = MenuBreadItem(menu2.id,bread2.id)
+
+        db.session.add(menuBreadItem1)
+        db.session.add(menuBreadItem2)
+        db.session.commit()
+
+        menuBreadItems = MenuBreadItem.list()
+
+        assert len(menuBreadItems) == 2
+        assert any(item.menu_id == menu1.id for item in menuBreadItems)
+        assert any(item.bread_id == bread1.id for item in menuBreadItems)
+        assert any(item.menu_id == menu2.id for item in menuBreadItems)
+        assert any(item.bread_id == bread2.id for item in menuBreadItems)
+
+class NotificationUnitTests(unittest.TestCase):
+
+    def test_create_notification(self):
+
+        drive = Drive(78, 2, 12, date(2025, 11, 8), time(11, 30), "Upcoming")
+        resident = Resident("frank", "frankpass", 1, 2, 123)
+
+        db.session.add(drive)
+        db.session.add(resident)
+        db.session.commit()
+
+        message = "This is a test message"
+        notification = create_notification (message,resident.id, drive.id)
+
+        db.session.add(notification)
+        db.session.commit()
+
+        assert notification.message == message
+        assert notification.drive_id == drive.id
+        assert notification.resident_id == resident.id
+
+    def test_notification_list(self):
+
+        drive1 = Drive(78, 2, 12, date(2025, 11, 8), time(11, 30), "Upcoming")
+        resident1 = Resident("frank", "frankpass", 1, 2, 123)
+
+        drive2 = Drive(78, 2, 12, date(2025, 12, 8), time(11, 30), "Upcoming")
+        resident2 = Resident("hannah", "hannahpass", 1, 2, 123)
+
+        db.session.add(drive1)
+        db.session.add(resident1)
+        db.session.add(drive2)
+        db.session.add(resident2)
+        db.session.commit()
+
+        message = "This is a test message"
+        notification1 = create_notification (message,resident1.id, drive1.id)
+        notification2 = create_notification (message,resident2.id, drive2.id)
+
+        db.session.add(notification1)
+        db.session.add(notification2)
+        db.session.commit()
+
+        notifications = Notification.list()
+
+        assert len(notifications) == 2
+        assert any(notification.id == notification1.id for notification in notifications)
+        assert any(notification.id == notification2.id for notification in notifications)
+        assert any(notification.message == message for notification in notifications)
+        
+        
+class StreetSubcriptionUnitTests(unittest.TestCase):
+
+    def test_new_streetSubcription(self):
+
+        street = Street("TestStreet", 1)
+        db.session.add(street)
+        db.session.commit()
+
+        resident = Resident("frank", "frankpass", 1, street.id, 123)
+
+        db.session.add(resident)
+        db.session.commit()
+
+        subcription1 = StreetSubscription (resident.id, street.id)
+
+        db.session.add(subcription1)
+        db.session.commit()
+
+
+        subcription = StreetSubscription.query.filter_by(street_id = street.id,resident_id = resident.id).first()
+
+        assert subcription is not None
+        assert subcription.resident_id == resident.id
+        assert subcription.street_id == street.id
+
+    def test_get_subcribers_for_street(self):
+
+        street = Street("TestStreet", 1)
+        db.session.add(street)
+        db.session.commit()
+
+        resident1 = Resident("frank", "frankpass", 1, street.id, 123)
+        resident2 = Resident("hannah", "hannahpass", 1, street.id, 123)
+
+        db.session.add(resident1)
+        db.session.add(resident2)
+        db.session.commit()
+
+        subcription1 = StreetSubscription (resident1.id, street.id)
+        subcription2 = StreetSubscription (resident2.id, street.id)
+
+        db.session.add(subcription1)
+        db.session.add(subcription2)
+        db.session.commit()
+
+        subcriptions = StreetSubscription.get_subscribers_for_street(street.id)
+
+        assert any(subcription.street_id == street.id for subcription in subcriptions)
+        assert any(subcription.resident_id == resident1.id for subcription in subcriptions)
+        assert any(subcription.resident_id == resident2.id for subcription in subcriptions)
+
 
 '''
     Integration Tests

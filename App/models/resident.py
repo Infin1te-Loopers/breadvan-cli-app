@@ -3,6 +3,7 @@ from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy import JSON
 
 from App.database import db
+from App.models.drive import Drive
 from .user import User
 # Remove: from .driver import Driver  # This causes circular import
 from .stop import Stop
