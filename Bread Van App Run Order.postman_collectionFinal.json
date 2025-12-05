@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "7bdf2448-2f93-42ad-aa4f-7acbae7b068e",
 		"name": "Bread Van App Run Order",
-		"description": "This collection is organized so that tests can run sequentially without probelm.\n\nFor Scripts to run properly the base URL environmental variable must be set to your own port number. Additionally the domain must be put in postman cookie manager whitelist ( ex localhost:8080 ).",
+		"description": "This collection is organized so that tests can run sequentially without probelm.\n\nFor Scripts to run properly the base URL environmental variable must be set the site URL. Additionally the domain must be put in postman cookie manager whitelist (breadvan-cli-app.onrender.com).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "42003084"
 	},
@@ -39,7 +39,7 @@
 						"init"
 					]
 				},
-				"description": "Resets database to default"
+				"description": "# Initialize\n\nRuns the Initialize Command to reset the database to its initial state.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/init`\n    \n- **Headers**: Authorization header with Bearer token and Content-Type: application/json\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns status indicating successful database reset.\n\n### Automated Tests\n\nNone"
 			},
 			"response": []
 		},
@@ -90,7 +90,7 @@
 						"login"
 					]
 				},
-				"description": "Login as admin user"
+				"description": "# Login - Admin\n\nAuthenticates an admin user and retrieves an access token for subsequent API requests.\n\n### Authentication\n\nNo authentication required for login endpoint.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/api/login`\n    \n- **Headers**: Content-Type: application/json\n    \n- **Body** (JSON):\n    \n    - `username` (required): Admin username\n        \n    - `password` (required): Admin password\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **access_token**: JWT token for authenticating admin user\n    \n\n### Automated Tests\n\n- Validates response status is 200\n    \n- Confirms response contains an `access_token` property"
 			},
 			"response": []
 		},
@@ -141,7 +141,7 @@
 						"login"
 					]
 				},
-				"description": "Login as driver user"
+				"description": "# Login - Driver\n\nAuthenticates a driver user and retrieves an access token for subsequent API requests.\n\n### Authentication\n\nNo authentication required for login endpoint.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/api/login`\n    \n- **Headers**: Content-Type: application/json\n    \n- **Body** (JSON):\n    \n    - `username` (required): Driver username\n        \n    - `password` (required): Driver password (\"bobpass\")\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **access_token**: JWT token for authenticating driver\n    \n\n### Automated Tests\n\n- Validates response status is 200\n    \n- Confirms response contains an `access_token` property"
 			},
 			"response": []
 		},
@@ -192,7 +192,7 @@
 						"login"
 					]
 				},
-				"description": "Login as resident user"
+				"description": "# Login - Resident\n\nAuthenticates a resident user and retrieves an access token for subsequent API requests.\n\n### Authentication\n\nNo authentication required for login endpoint.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/api/login`\n    \n- **Headers**: Content-Type: application/json\n    \n- **Body** (JSON):\n    \n    - `username` (required): Resident username\n        \n    - `password` (required): Resident password\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **access_token**: JWT token for authenticating resident.\n    \n\n### Automated Tests\n\n- Validates response status is 200\n    \n- Confirms response contains an `access_token` propertyble"
 			},
 			"response": []
 		},
@@ -242,7 +242,7 @@
 						"login"
 					]
 				},
-				"description": "Bad login attmept"
+				"description": "# Login - Missing Credentials\n\nTests authentication failure scenario with empty credentials.\n\n### Authentication\n\nNo authentication required for login endpoint.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/api/login`\n    \n- **Headers**: Content-Type: application/json\n    \n- **Body** (JSON):\n    \n    - `username` : Empty string\n        \n    - `password` : Empty string\n        \n\n### Expected Response\n\nReturns a JSON error object containing:\n\n- **message**: Error description (\"bad username or password given\")\n    \n\n### Automated Tests\n\n- Validates response status is 401 Unauthorized\n    \n- Confirms response contains expected error message structure"
 			},
 			"response": []
 		},
@@ -358,7 +358,8 @@
 						"admin",
 						"areas"
 					]
-				}
+				},
+				"description": "# Create Area\n\nCreates a new delivery area in the system.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/admin/areas`\n    \n- **Headers**:\n    \n    - Authorization: JWT Token\n        \n- **Body** (JSON):\n    \n    - `name` (required): Name of the area (\"Downtown\")\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created area\n    \n- **name**: Name of the area\n    \n\n### Automated Tests\n\n- Validates response status is 201 Created\n    \n- Confirms response contains `id` and `name` properties and stores area ID in `area_id` environment variable"
 			},
 			"response": []
 		},
@@ -378,7 +379,7 @@
 							"    pm.expect(jsonData).to.have.property('id');",
 							"    pm.expect(jsonData).to.have.property('name', 'Main Street');",
 							"    ",
-							"    //pm.environment.set(\"street_id\", jsonData.id);",
+							"    pm.environment.set(\"street_id\", jsonData.id);",
 							"});"
 						],
 						"type": "text/javascript",
@@ -448,7 +449,8 @@
 						"admin",
 						"streets"
 					]
-				}
+				},
+				"description": "# Create Street\n\nCreates a new street within an existing area.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable. This is an admin-only endpoint.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/admin/streets`\n    \n- **Headers**:\n    \n    - Authorization: Bearer token\n        \n- **Body** (JSON):\n    \n    - `name` : Name of the street\n        \n    - `area_id` : ID of the area this street belongs to\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created street\n    \n- **name**: Name of the street\n    \n- **area_id**: ID of the associated area\n    \n\n### Automated Tests\n\n- Validates response status is 201 Created\n    \n- Confirms response contains `id` and `name` properties with correct values"
 			},
 			"response": []
 		},
@@ -538,7 +540,8 @@
 						"admin",
 						"drivers"
 					]
-				}
+				},
+				"description": "# Create Driver\n\nCreates a new driver account in the system.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/admin/drivers`\n    \n- **Headers**:\n    \n    - Authorization: Bearer token\n        \n- **Body** (JSON):\n    \n    - `username` : Driver username (\"new_driver\")\n        \n    - `password` : Driver password (\"driver123\")\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created driver\n    \n- **username**: Username of the driver\n    \n\n### Automated Tests\n\n- Validates response status is 201 Created\n    \n- Confirms response contains `id` and `username` properties with correct values"
 			},
 			"response": []
 		},
@@ -627,7 +630,8 @@
 						"admin",
 						"residents"
 					]
-				}
+				},
+				"description": "# Create Resident\n\nCreates a new resident account in the system.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable. This is an admin-only endpoint.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/admin/residents`\n    \n- **Headers**:\n    \n    - Authorization: Bearer token\n        \n- **Body** (JSON):\n    \n    - `username` : Resident username (\"new_resident\")\n        \n    - `password` : Resident password (\"resident123\")\n        \n    - `area_id` : ID of the area where resident lives\n        \n    - `street_id` : ID of the street where resident lives\n        \n    - `house_number` : House number (\"123\")\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created resident\n    \n- **username**: Username of the resident\n    \n- **areaId**: ID of the associated area\n    \n- **streetId**: ID of the associated street\n    \n- **houseNumber**: House number\n    \n\n### Automated Tests\n\n- Validates response status is 201 Created\n    \n- Confirms response contains `id`, `username`, and `areaId` properties with correct values"
 			},
 			"response": []
 		},
@@ -702,7 +706,8 @@
 						"admin",
 						"areas"
 					]
-				}
+				},
+				"description": "## List Areas\n\nRetrieves a list of all delivery areas in the system.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable. This is an admin-only endpoint.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/admin/areas`\n    \n- **Headers**: Authorization header with Bearer token\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **items** (array): List of area objects with their details\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains an `items` property that is an array with at least one area"
 			},
 			"response": []
 		},
@@ -776,7 +781,8 @@
 						"admin",
 						"streets"
 					]
-				}
+				},
+				"description": "## List Streets\n\nRetrieves a list of all streets in the system.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable. This is an admin-only endpoint.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/admin/streets`\n    \n- **Headers**: Authorization header with Bearer token\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **items** (array): List of street objects with their details including name and associated area\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains an `items` property that is an array"
 			},
 			"response": []
 		},
@@ -844,7 +850,8 @@
 						"admin",
 						"users"
 					]
-				}
+				},
+				"description": "# List Users\n\nRetrieves a list of all users in the system.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable. This is an admin-only endpoint.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/admin/users`\n    \n- **Headers**: Authorization header with JWT token\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing user information.\n\n### Automated Tests\n\n- Validates response status is 200 OK"
 			},
 			"response": []
 		},
@@ -913,7 +920,8 @@
 						"drivers",
 						"{{created_driver_id}}"
 					]
-				}
+				},
+				"description": "# Delete Driver\n\nDeletes a driver account from the system by its ID.\n\n### Authentication\n\nRequires JWT authentication using the `admin_access_token` environment variable.\n\n### Request Details\n\n- **Method**: DELETE\n    \n- **URL**: `{{base_url}}/admin/drivers/{{created_driver_id}}`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns status 204 No Content when the driver is successfully deleted.\n\n### Automated Tests\n\n- Validates response status is 204 No Content"
 			},
 			"response": []
 		},
@@ -931,9 +939,7 @@
 							"pm.test(\"Response contains driver id\", function () {",
 							"    var jsonData = pm.response.json();",
 							"    pm.expect(jsonData).to.have.property('id');",
-							"});",
-							"",
-							"pm.execution.setNextRequest(\"Subscribe to Street\");"
+							"});"
 						],
 						"type": "text/javascript",
 						"packages": {},
@@ -988,7 +994,8 @@
 						"driver",
 						"me"
 					]
-				}
+				},
+				"description": "# Get Driver Profile\n\nRetrieves the profile information for the currently authenticated driver.\n\n### Authentication\n\nRequires JWT authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/driver/me`\n    \n- **Headers**: Authorization header with JWT token\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the driver\n    \n- Other driver profile information\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains an `id` property"
 			},
 			"response": []
 		},
@@ -1055,7 +1062,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  //\"street_id\": {{street_id}}\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1071,7 +1078,8 @@
 						"resident",
 						"subscriptions"
 					]
-				}
+				},
+				"description": "## Subscribe to Street\n\nCreates a subscription for a resident to receive notifications about delivery drives on a specific street. This allows residents to be notified when the bread van will be visiting their street.\n\n### Authentication\n\nRequires JWT authentication using the `resident_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/resident/subscriptions`\n    \n- **Headers**:\n    \n    - Authorization: Bearer token\n        \n- **Body** (JSON):\n    \n    - `street_id` : The ID of the street to subscribe to\n        \n\n### Expected Response\n\nReturns status 201 Created when the subscription is successfully created.\n\n### Automated Tests\n\n- Validates response status is 201 Created"
 			},
 			"response": []
 		},
@@ -1166,7 +1174,8 @@
 						"driver",
 						"drives"
 					]
-				}
+				},
+				"description": "# Create Drive\n\nCreates a new delivery drive scheduled by a driver. A drive represents a planned delivery route on a specific street at a scheduled time.\n\n### Authentication\n\nRequires JWT authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/driver/drives`\n    \n- **Headers**:\n    \n    - Authorization: JWTtoken\n        \n- **Body** (JSON):\n    \n    - `street_id` : ID of the street for the drive\n        \n    - `area_id` : ID of the area for the drive\n        \n    - `date` : Scheduled date\n        \n    - `time` : Scheduled time\n        \n    - `menu_id` : ID of the menu for this drive\n        \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created drive\n    \n- **streetId**: ID of the street\n    \n- **date**: Scheduled date\n    \n- **time**: Scheduled time\n    \n- **status**: Initial status (\"Upcoming\")\n    \n- **driverId**: ID of the driver who created the drive\n    \n- **areaId**: ID of the area\n    \n\n### Automated Tests\n\n- Validates response status is 201 Created\n    \n- Confirms response contains all expected drive data properties"
 			},
 			"response": []
 		},
@@ -1252,7 +1261,8 @@
 							"value": "10"
 						}
 					]
-				}
+				},
+				"description": "# List Drives\n\nRetrieves a paginated list of drives for the authenticated driver.\n\n### Authentication\n\nRequires JWT authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/driver/drives?page=1&page_size=10`\n    \n- **Headers**: Authorization header with JWT token\n    \n- **Query Parameters**:\n    \n    - `page`: Page number\n        \n    - `page_size`: Number of items per page\n        \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **items** (array): List of drive objects\n    \n- **page**: Current page number\n    \n- **total**: Total number of drives\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains `items` array with pagination metadata"
 			},
 			"response": []
 		},
@@ -1329,7 +1339,7 @@
 						"start"
 					]
 				},
-				"description": "# Start Drive\n\n## Overview\n\nThis endpoint initiates a delivery drive, changing its status from pending to started. Once a drive is started, the driver can begin making deliveries along their assigned route.\n\n## URL Parameters\n\n- **drive_id** (required): The unique identifier of the drive to start. This would be set in the environment variable by a previous request and corresponds to a drive that has been assigned to the authenticated driver.\n    \n\n## Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/driver/drives/{{drive_id}}/start`\n    \n- **Body**: None required\n    \n\n## Expected Response\n\n**Success (200 OK)**:\n\n``` json\n{\n  \"id\": 123,\n  \"status\": \"started\"\n}\n\n ```\n\nThe response includes:\n\n- `id`: The drive ID that was started (matches the `drive_id` parameter)\n    \n- `status`: Confirmation that the drive status is now \"started\"\n    \n\n## Pre-request Script Notes\n\nThis request includes a pre-request script that:\n\n1. Retrieves the `driver_access_token` from the environment\n    \n2. Sets it as a cookie named `access_token` for the API host\n    \n3. Logs warnings if the token is not set\n    \n4. This ensures the JWT token is available both as a header and as a cookie for the request\n    \n\n## Tests\n\nThe request includes automated tests that verify:\n\n- Response status code is 200\n    \n- Response contains the correct drive ID\n    \n- Drive status is set to \"started\""
+				"description": "# Start Drive\n\nStarts a scheduled drive by it's drive id.\n\n### Authentication\n\nRequires **JWT** authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/driver/drives/{{drive_id}}/start`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: Not required.\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created stop request\n    \n- **status:** Current status of the drive\n    \n\n### Automated Tests\n\n- Validates response status is 200\n    \n- Confirms response contains an `id` property and status property. ID must equal {{drive_id}} and status must equal \"started\""
 			},
 			"response": []
 		},
@@ -1419,7 +1429,8 @@
 						"resident",
 						"stops"
 					]
-				}
+				},
+				"description": "## Create Stop Request\n\nCreates a stop request for a resident to be added to a specific delivery drive.\n\n### Authentication\n\nRequires **JWT** authentication using the `resident_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/resident/stops`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: JSON object containing the drive id.\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: The unique identifier for the created stop request\n    \n\n### Automated Tests\n\n- Validates response status is 201 Created\n    \n- Confirms response contains an `id` property"
 			},
 			"response": []
 		},
@@ -1494,7 +1505,8 @@
 						"{{drive_id}}",
 						"requested-stops"
 					]
-				}
+				},
+				"description": "## Get Available Drives\n\nGet all requested stops along a drives route.\n\n### Authentication\n\nRequires **JWT** authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/driver/drives/{{drive_id}}/requested-stops`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **Items**(array): List of **items** objects for the authenticated resident. **Item** object consists of **driveId, stopId and residentId**\n    \n\n### Automated Tests\n\n- Validates response status is 200.\n    \n- Confirms response contains an array property called items."
 			},
 			"response": []
 		},
@@ -1509,10 +1521,11 @@
 							"    pm.response.to.have.status(200);",
 							"});",
 							"",
-							"pm.test(\"Response contains drives with menu information\", function () {",
+							"pm.test(\"Response contains drives\", function () {",
 							"    var jsonData = pm.response.json();",
 							"    pm.expect(jsonData).to.have.property('drives');",
 							"    pm.expect(jsonData.drives).to.be.an('array');",
+							"    pm.expect(jsonData.drives[0].menu).to.be.an('object');",
 							"});"
 						],
 						"type": "text/javascript",
@@ -1568,7 +1581,8 @@
 						"resident",
 						"drives"
 					]
-				}
+				},
+				"description": "## Get Available Drives\n\nGet all upcoming drives in the residents street.\n\n### Authentication\n\nRequires **JWT** authentication using the `resident_access_token` environment variable.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/resident/drives`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **Drives**(array): List of **drives** objects for the authenticated resident\n    \n\n### Automated Tests\n\n- Validates response status is 200.\n    \n- Confirms response contains an array property called **Drives**."
 			},
 			"response": []
 		},
@@ -1637,7 +1651,8 @@
 						"stops",
 						"{{stop_id}}"
 					]
-				}
+				},
+				"description": "## Delete Stop Request\n\nDeletes the stop request from a resident by it's stop ID.\n\n### Authentication\n\nRequires **JWT** authentication using the `resident_access_token` environment variable.\n\n### Request Details\n\n- **Method**: DEL\n    \n- **URL**: `{{base_url}}/resident/stops/{{stop_id}}`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nNone\n\n### Automated Tests\n\n- Validates response status is 204."
 			},
 			"response": []
 		},
@@ -1713,7 +1728,8 @@
 						"{{drive_id}}",
 						"end"
 					]
-				}
+				},
+				"description": "## End Drive\n\nEnds the drive assoicated with the drive ID.\n\n### Authentication\n\nRequires **JWT** authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/driver/drives/{{drive_id}}/end`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: Drive ID number.\n    \n- **status**: Status of drive.\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains **drive ID** and **status** property. **Drive ID** must be {{drive_id}} and **status** must equal ended."
 			},
 			"response": []
 		},
@@ -1789,7 +1805,8 @@
 						"{{drive_id}}",
 						"cancel"
 					]
-				}
+				},
+				"description": "## Cancel Drive\n\nCancels the drive assoicated with the drive ID.\n\n### Authentication\n\nRequires **JWT** authentication using the `driver_access_token` environment variable.\n\n### Request Details\n\n- **Method**: POST\n    \n- **URL**: `{{base_url}}/driver/drives/{{drive_id}}/cancel`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: Drive ID number.\n    \n- **status**: Status of drive.\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains drive ID and status property. Drive ID must be {{drive_id}} and status must equal cancelled."
 			},
 			"response": []
 		},
@@ -1863,7 +1880,8 @@
 						"resident",
 						"me"
 					]
-				}
+				},
+				"description": "## Get Resident Profile\n\nRetrieves the current resident ID.\n\n### Authentication\n\nRequires **JWT** authentication using the `resident_access_token` environment variable.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/resident/notifications/me`\n    \n- **Headers**: Authorization header with JWT\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **id**: Residents ID number\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains resident id property"
 			},
 			"response": []
 		},
@@ -1938,7 +1956,7 @@
 						"subscriptions"
 					]
 				},
-				"description": "## Get Subscriptions\n\nThis endpoint retrieves all subscriptions associated with a resident account in the Bakery Delivery System.\n\n### Authentication\n\nThis request uses **Bearer Token** authentication with the `resident_access_token` environment variable. The token must be set in the Authorization header.\n\n### Pre-request Script\n\nBefore sending the request, a pre-request script automatically sets a JWT cookie from the `resident_access_token` environment variable. This ensures the authentication token is available both as a header and as a cookie for the API request.\n\n### Expected Response\n\nThe API returns a JSON object containing:\n\n- **subscriptions** (array): A list of all active subscriptions for the authenticated resident\n    \n\nExample response structure:\n\n``` json\n{\n  \"subscriptions\": [\n    // Array of subscription objects\n  ]\n}\n\n ```\n\n### Automated Tests\n\nThis request includes post-response tests that validate:\n\n1. **Status Code**: Confirms the response returns a `200 OK` status\n    \n2. **Response Structure**: Verifies that the response contains a `subscriptions` property that is an array\n    \n\nThese tests ensure the endpoint is functioning correctly and returning data in the expected format."
+				"description": "## Get Subscriptions\n\nThis request retrieves all subscriptions associated with a resident account.\n\n### Authentication\n\nThis request uses **JWT** authentication with the `resident_access_token` environment variable. The token must be set in the Authorization header.\n\n### Pre-request Script\n\nBefore sending the request, a pre-request script automatically sets a JWT cookie from the `resident_access_token` environment variable. This ensures the authentication token is available both as a header and as a cookie for the API request.\n\n### Expected Response\n\nThe API returns a JSON object containing:\n\n- **subscriptions** (array): A list of all active subscriptions for the authenticated resident\n    \n\n### Automated Tests\n\nThis request includes post-response tests that validate:\n\n1. **Status Code**: Confirms the response returns a `200 OK` status\n    \n2. **Response Structure**: Verifies that the response contains a `subscriptions` property that is an array."
 			},
 			"response": []
 		},
@@ -2012,7 +2030,8 @@
 						"resident",
 						"notifications"
 					]
-				}
+				},
+				"description": "## Get Notifications\n\nRetrieves all notifications for the authenticated resident account. Notifications typically include updates about delivery drives, stop requests, and other relevant information for the resident.\n\n### Authentication\n\nRequires **JWT** authentication using the `resident_access_token` environment variable.\n\n### Request Details\n\n- **Method**: GET\n    \n- **URL**: `{{base_url}}/resident/notifications`\n    \n- **Headers**: Authorization header with **JWT**\n    \n- **Body**: None required\n    \n\n### Expected Response\n\nReturns a JSON object containing:\n\n- **notifications** (array): List of notification objects for the authenticated resident\n    \n\n### Automated Tests\n\n- Validates response status is 200 OK\n    \n- Confirms response contains a `notifications` property that is an array"
 			},
 			"response": []
 		}

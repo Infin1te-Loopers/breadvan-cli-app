@@ -68,13 +68,6 @@ def initialize():
     db.session.add_all([resident1, resident2, resident3])
     db.session.commit()
 
-    #Creating Drives and Stops
-    driver2.schedule_drive(area1.id, street12.id, "2025-10-26", "10:00", menu_id=None)
-    db.session.commit()
-                     
-    resident2.request_stop(0)
-    db.session.commit()
-
 
     # Creating Menu and Items
     
@@ -104,4 +97,11 @@ def initialize():
     ]
     for item in menu_bread_items:
         db.session.add(item)
+    db.session.commit()
+
+    #Creating Drives and Stops
+    driver2.schedule_drive(area1.id, street12.id, "2025-10-26", "10:00", menu_id=1)
+    db.session.commit()
+                     
+    resident2.request_stop(0)
     db.session.commit()

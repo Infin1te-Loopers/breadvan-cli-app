@@ -188,7 +188,64 @@ class DriverStockUnitTests(unittest.TestCase):
         driverStock = DriverStock(1, 2, 30)
         driverStock_json = driverStock.get_json()
         self.assertDictEqual(driverStock_json, {"id":None, "driverId":1, "itemId":2, "quantity":30})
+
+class MenuUnitTests(unittest.TestCase): ##new unit test start here
+
+    def test_new_menu(self):
+
+        menu = Menu("TestMenu")
+        assert menu.name == "TestMenu"
+
+
+class BreadItemUnitTests(unittest.TestCase):
+
+    def test_new_breadItem(self):
+
+        bread = BreadItem ("TestBread", 12.50)
+        assert bread.name == "TestBread"
+        assert bread.price == 12.50
+
+ 
+class MenuBreadItemUnitTests(unittest.TestCase):
+
+    def test_new_menuBreadItem(self):
+
+        menu = Menu("TestMenu")
+        bread = BreadItem ("TestBread", 12.50)
+
+        menuBreadItem = MenuBreadItem(menu.id,bread.id)
+
+        assert menuBreadItem.menu_id == menu.id
+        assert menuBreadItem.bread_id == bread.id
+
+
+class NotificationUnitTests(unittest.TestCase):
+
+    def test_create_notification(self):
+
+        drive = Drive(78, 2, 12, date(2025, 11, 8), time(11, 30), "Upcoming")
+        resident = Resident("frank", "frankpass", 1, 2, 123)
+
+        message = "This is a test message"
+        notification = create_notification (message,resident.id, drive.id)
+
+        assert notification.message == message
+        assert notification.drive_id == drive.id
+        assert notification.resident_id == resident.id
+
         
+class StreetSubscriptionUnitTests(unittest.TestCase):
+
+    def test_new_streetSubscription(self):
+
+        street = Street("TestStreet", 1)
+        resident = Resident("frank", "frankpass", 1, street.id, 123)
+
+        subscription = StreetSubscription (resident.id, street.id)
+      
+        assert subscription.resident_id == resident.id
+        assert subscription.street_id == street.id
+
 
 '''
     Integration Tests
